@@ -26,21 +26,36 @@ RUN dnf5 -y install \
 
 RUN dnf clean all
 
-RUN useradd -m forge
-RUN echo "forge ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
-RUN echo "forge:forge" | chpasswd
-
 RUN sed -i -e 's/^\(Defaults\s*requiretty\)/#--- \1/'  /etc/sudoers
 
 RUN chmod 0400 /etc/shadow
 
+RUN useradd -m forge
+RUN useradd -m forge-pw
+
+RUN echo "forge ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+RUN echo "forge-pw ALL=(ALL) PASSWD: ALL" >> /etc/sudoers
+
+RUN echo "forge:forge" | chpasswd
+RUN echo "forge-pw:forge" | chpasswd
+
 RUN mkdir -p /home/forge/.ssh
+RUN mkdir -p /home/forge-pw/.ssh
+
 RUN chmod 700 /home/forge/.ssh
+RUN chmod 700 /home/forge-pw/.ssh
+
 RUN chown forge:forge /home/forge/.ssh
+RUN chown forge-pw:forge-pw /home/forge-pw/.ssh
 
 COPY ssh/authorized_keys /home/forge/.ssh/authorized_keys
+COPY ssh/authorized_keys /home/forge-pw/.ssh/authorized_keys
+
 RUN chmod 600 /home/forge/.ssh/authorized_keys
+RUN chmod 600 /home/forge-pw/.ssh/authorized_keys
+
 RUN chown forge:forge /home/forge/.ssh/authorized_keys
+RUN chown forge-pw:forge-pw /home/forge-pw/.ssh/authorized_keys
 
 EXPOSE 22
 
